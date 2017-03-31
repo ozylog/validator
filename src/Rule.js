@@ -1,25 +1,45 @@
 'use strict';
 
-import validator from 'validator';
+import validator from './validator';
+
+type NObj = null | Object;
 
 export default class Rule {
-  r: Object;
-  constructor(name: string, message: string) {
-    this.r = {
-      name,
-      message,
-      validators: []
-    };
+  name: string;
+  value: any;
+  message: string;
+  validators: Array<any>;
+  constructor(name: string, value: any, message: string = 'Invalid') {
+    this.name = name;
+    this.value = value;
+    this.message = message;
+    this.validators = [];
+  }
 
-    Object.keys(validator).forEach((methodName: string) => {
-      this[methodName] = (...args: Array<any>): Rule => {
-        this.r.validators.push({
-          validator: validator[methodName],
-          args
-        });
-
-        return this;
-      };
+  validate(): NObj {
+    let result: NObj = null;
+    const isValid = this.validators.every(({method, args}) => {
+      return validator[method](this.value, ...args);
     });
+
+    if (!isValid) {
+      result = {
+        name: this.name,
+        message: this.message
+      };
+    }
+
+    return result;
   }
 }
+
+Object.keys(validator).forEach((method: string) => {
+  Rule.prototype[method] = function(...args: Array<any>): Rule {
+    this.validators.push({
+      method,
+      args
+    });
+
+    return this;
+  };
+});

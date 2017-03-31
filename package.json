@@ -1,16 +1,17 @@
 {
-  "name": "ozylog-validator",
+  "name": "@ozylog/validator",
   "version": "0.1.0",
   "description": "Validator and sanitizer",
   "main": "./dist/index.js",
   "scripts": {
     "prepublish": "ozylog-boilerplate node:build",
     "build": "ozylog-boilerplate node:build",
-    "watch": "ozylog-boilerplate node:watch"
+    "watch": "ozylog-boilerplate node:watch",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ozylog/ozylog-validator.git"
+    "url": "git+https://github.com/ozylog/validator.git"
   },
   "keywords": [
     "ozylog",
@@ -20,9 +21,9 @@
   "author": "Cahya Pribadi <ozylog@gmail.com>",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
-    "url": "https://github.com/ozylog/ozylog-validator/issues"
+    "url": "https://github.com/ozylog/validator/issues"
   },
-  "homepage": "https://github.com/ozylog/ozylog-validator#readme",
+  "homepage": "https://github.com/ozylog/validator#readme",
   "devDependencies": {
     "ozylog-boilerplate": "^0.1.9"
   },
