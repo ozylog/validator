@@ -4,10 +4,10 @@
   "description": "Validator and sanitizer",
   "main": "./dist/index.js",
   "scripts": {
-    "prepublish": "ozylog-boilerplate node:build",
-    "build": "ozylog-boilerplate node:build",
-    "watch": "ozylog-boilerplate node:watch",
-    "publish": "npm publish --access public"
+    "prepublish": "boilerplate build:node",
+    "build": "boilerplate build:node",
+    "watch": "boilerplate watch:node",
+    "test": "boilerplate test"
   },
   "repository": {
     "type": "git",
@@ -18,14 +18,14 @@
     "validator",
     "sanitizer"
   ],
-  "author": "Cahya Pribadi <ozylog@gmail.com>",
+  "author": "Cahya Pribadi <cahya@monelog.com>",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
     "url": "https://github.com/ozylog/validator/issues"
   },
   "homepage": "https://github.com/ozylog/validator#readme",
   "devDependencies": {
-    "ozylog-boilerplate": "^0.1.9"
+    "@ozylog/boilerplate": "^0.3.3"
   },
   "dependencies": {
     "validator": "^7.0.0"

@@ -33,7 +33,26 @@ export default class Rule {
   }
 }
 
-Object.keys(validator).forEach((method: string) => {
+const nonValidator = [
+  'version',
+  'blacklist',
+  'escape',
+  'unescape',
+  'ltrim',
+  'normalizeEmail',
+  'rtrim',
+  'stripLow',
+  'toBoolean',
+  'toDate',
+  'toFloat',
+  'toInt',
+  'trim',
+  'whitelist'
+];
+
+for (const method: string in validator) {
+  if (nonValidator.includes(method)) continue;
+
   Rule.prototype[method] = function(...args: Array<any>): Rule {
     this.validators.push({
       method,
@@ -42,4 +61,4 @@ Object.keys(validator).forEach((method: string) => {
 
     return this;
   };
-});
+}
