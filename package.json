@@ -25,9 +25,10 @@
   },
   "homepage": "https://github.com/ozylog/validator#readme",
   "devDependencies": {
-    "@ozylog/boilerplate": "^0.3.3"
+    "@ozylog/boilerplate": "^0.3.5"
   },
   "dependencies": {
+    "babel-polyfill": "^6.23.0",
     "validator": "^7.0.0"
   }
 }

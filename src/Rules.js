@@ -4,7 +4,7 @@
 
 import Rule from './Rule';
 
-type NObj = null | Object;
+type ObjNull = Object | null;
 
 export default class Rules {
   rules: Array<Rule>;
@@ -21,26 +21,49 @@ export default class Rules {
     return rule;
   }
 
-  validate(): NObj {
-    let result: NObj = null;
-    const arrErrors: Array<Object> = [];
+  validate(config: Object = {}): ObjNull {
+    const {checkAll}: {checkAll: string} = config;
+    const errors: Object = {};
 
     for (const rule: Rule of this.rules) {
-      const error: NObj = rule.validate();
+      if (errors[rule.name] && !checkAll) continue;
 
-      if (error) arrErrors.push(error);
-    }
+      const error: ObjNull = rule.validate();
 
-    if (arrErrors.length) {
-      result = {};
+      if (error) {
+        if (checkAll) {
+          if (!errors[rule.name]) errors[rule.name] = [];
 
-      for (const error: Object of arrErrors) {
-        if (!result[error.name]) result[error.name] = [];
-
-        result[error.name].push(error.message);
+          errors[rule.name].push(error.message);
+        } else {
+          errors[rule.name] = error.message;
+        }
       }
     }
 
-    return result;
+    return Object.keys(errors).length ? errors : null;
+  }
+
+  async validatePromise(config: Object = {}): Promise<ObjNull> {
+    const {checkAll}: {checkAll: boolean} = config;
+    const errors: Object = {};
+
+    for (const rule: Rule of this.rules) {
+      if (errors[rule.name] && !checkAll) continue;
+
+      const error: ObjNull = await rule.validatePromise();
+
+      if (error) {
+        if (checkAll) {
+          if (!errors[rule.name]) errors[rule.name] = [];
+
+          errors[rule.name].push(error.message);
+        } else {
+          errors[rule.name] = error.message;
+        }
+      }
+    }
+
+    return Object.keys(errors).length ? errors : null;
   }
 }

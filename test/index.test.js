@@ -1,6 +1,6 @@
 'use strict';
 
-import validator, {Rules} from './../dist/index.js';
+import {validator, addValidator, sanitizer, Rules} from './../dist/index.js';
 
 describe('Check available functions', () => {
   it('validator.isEmpty should be available', () => {
@@ -9,6 +9,14 @@ describe('Check available functions', () => {
 
   it('validator.isRequired should be available', () => {
     validator.isRequired.should.be.ok();
+  });
+
+  it('addValidator should be available', () => {
+    addValidator.should.be.ok();
+  });
+
+  it('sanitizer should be available', () => {
+    sanitizer.should.be.ok();
   });
 
   it('Rules should be available', () => {

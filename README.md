@@ -12,24 +12,56 @@ npm install @ozylog/validator --save
 
 ## Usage Examples
 
-### Validator
+### validator
 Please check [validator](https://www.npmjs.com/package/validator) page to see list all available functions + `isRequired()`
 ```javascript
-import validator from '@ozylog/validator';
+import {validator} from '@ozylog/validator';
 
 validator.isEmpty(''); // returns true
 validator.isRequired('') // returns false
+```
+### addValidator
+```javascript
+import {addValidator} from '@ozylog/validator';
+
+addValidator({
+    isEmailAvailable: async () => true
+});
+```
+
+### sanitizer
+```javascript
+import {sanitizer} from '@ozylog/validator'
+
+sanitizer.trim(' test '); // returns 'test'
 ```
 
 ### Rules
 ```javascript
 import {Rules} from '@ozylog/validator';
 
-const name = 'Aloha';
+const name = '';
 const rules = new Rules();
+
 rules.add('name', name, 'Name is required').isRequired();
 rules.add('name', name, 'Min name length is 8').isLength({min: 8});
-const errors = rules.validate(); // return {name: ['Min name length is 8']}
+rules.validate(); // returns {name: 'Name is required'}
+rules.validate({checkAll: true}); // returns {name: ['Name is required', 'Min name length is 8']}
+```
+
+```javascript
+import {addValidator, Rules} from '@ozylog/validator';
+
+addValidator({
+    isEmailAvailable: async () => false
+});
+
+const email = 'hello@world.com';
+const rules = new Rules();
+rules.add('email', email, 'Email is not available').isEmailAvailable();
+
+await rules.validatePromise(); // returns {email: 'Email is not available'}
+await rules.validatePromise({checkAll: true}); // returns {email: ['Email is not available']}
 ```
 
 ```javascript
@@ -37,8 +69,8 @@ import {Rules} from '@ozylog/validator';
 
 const email = 'hello@world.com';
 const rules = new Rules();
-rules.add('email', email, 'email is invalid').isRequired().isEmail();
-const errors = rules.validate(); // return null
+rules.add('email', email).isRequired().isEmail();
+const errors = rules.validate(); // returns null
 ```
 
 ## License
