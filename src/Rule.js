@@ -5,64 +5,96 @@ import validator from './validator';
 
 type ObjNull = null | Object;
 
+const DEFAULT_MESSAGE = 'Invalid';
+
 export default class Rule {
   name: string;
   value: any;
   message: string;
-  validators: Array<any>;
+  validators: Object;
 
-  constructor(name: string, value: any, message: string = 'Invalid') {
+  constructor(name: string, value: any): Rule {
     if (name.constructor !== String || value === undefined) throw new Error('Invalid param');
 
     this.name = name;
     this.value = value;
-    this.message = message;
-    this.validators = [];
+    this.validators = {};
+
+    return this;
   }
 
-  validate(): ObjNull {
+  setMessage(message: string): Rule {
+    this.validators[message] = this.validators[DEFAULT_MESSAGE];
+
+    delete this.validators[DEFAULT_MESSAGE];
+    return this;
+  }
+
+  validate(config: Object = {}): ObjNull {
+    const {checkAll}: {checkAll: ?boolean} = config;
     let result: ObjNull = null;
-    let isValid: boolean = true;
 
-    for (const {method, args}: Object of this.validators) {
-      isValid = validator[method](this.value, ...args);
+    for (const message: string in this.validators) {
+      let isValid: boolean = true;
 
-      if (!isValid) break;
+      for (const {method, args}: {method: string, args: Array<any>} of this.validators[message]) {
+        isValid = validator[method](this.value, ...args);
 
-      if (isValid.constructor.name === 'Promise') {
-        throw new Error(`Validator ${method}() returns Promise. Please use validatePromise() instead.`);
+        if (isValid.constructor && isValid.constructor.name === 'Promise') {
+          throw new Error(`Validator ${method}() returns Promise. Please use validatePromise() instead.`);
+        }
+
+        if (!isValid) break;
       }
-    }
 
-    if (!isValid) {
-      result = {
-        name: this.name,
-        message: this.message
-      };
+      if (!isValid) {
+        if (checkAll) {
+          if (!result) {
+            result = {[this.name]: []};
+          }
+
+          result[this.name].push(message);
+        } else {
+          result = {[this.name]: message};
+          break;
+        }
+      }
     }
 
     return result;
   }
 
-  async validatePromise(): Promise<ObjNull> {
+  async validatePromise(config: Object = {}): Promise<ObjNull> {
+    const {checkAll}: {checkAll: ?boolean} = config;
     let result: ObjNull = null;
-    let isValid: boolean = true;
 
-    for (const {method, args}: Object of this.validators) {
-      isValid = validator[method](this.value, ...args);
+    for (const message: string in this.validators) {
+      let isValid: boolean = true;
 
-      if (isValid && isValid.constructor.name === 'Promise') {
-        isValid = await isValid;
+      for (const {method, args}: {method: string, args: Array<any>} of this.validators[message]) {
+        const validatorResult: boolean | Promise<boolean> = validator[method](this.value, ...args);
+
+        if (validatorResult.constructor.name === 'Promise') {
+          isValid = await validatorResult;
+        } else {
+          isValid = validatorResult;
+        }
+
+        if (!isValid) break;
       }
 
-      if (!isValid) break;
-    }
+      if (!isValid) {
+        if (checkAll) {
+          if (!result) {
+            result = {[this.name]: []};
+          }
 
-    if (!isValid) {
-      result = {
-        name: this.name,
-        message: this.message
-      };
+          result[this.name].push(message);
+        } else {
+          result = {[this.name]: message};
+          break;
+        }
+      }
     }
 
     return result;
@@ -70,7 +102,8 @@ export default class Rule {
 
   static addMethod(method: string): boolean {
     Rule.prototype[method] = function(...args: Array<any>): Rule {
-      this.validators.push({
+      if (!this.validators[DEFAULT_MESSAGE]) this.validators[DEFAULT_MESSAGE] = [];
+      this.validators[DEFAULT_MESSAGE].push({
         method,
         args
       });

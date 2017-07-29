@@ -1,6 +1,6 @@
 'use strict';
 
-import {Rules, addValidator} from './../dist/index.js';
+import {Rules, Rule, addValidator} from './../dist/index.js';
 
 describe('Feature: Rules Class', () => {
   context('Scenario: validate() passed', () => {
@@ -10,7 +10,7 @@ describe('Feature: Rules Class', () => {
       describe('And Rules: isRequired(), isEmail()', () => {
         const rules = new Rules();
 
-        rules.add('email', email, 'Email is invalid').isRequired().isEmail();
+        rules.addRule('email', email).isRequired().isEmail().setMessage('Email is invalid');
 
         it(`Then rules.validate() should return null`, () => {
           const errors = rules.validate();
@@ -34,7 +34,7 @@ describe('Feature: Rules Class', () => {
       describe('And Rules: isRequired()', () => {
         const rules = new Rules();
 
-        rules.add('name', name, 'Name is required').isRequired();
+        rules.addRule('name', name).isRequired().setMessage('Name is required');
 
         it(`Then rules.validate() should return {name: 'Name is required'}`, () => {
           const errors = rules.validate();
@@ -56,8 +56,10 @@ describe('Feature: Rules Class', () => {
       describe('And Rules: isMongoId(), isLength({min: 8})', () => {
         const rules = new Rules();
 
-        rules.add('id', id, 'Invalid ID').isMongoId();
-        rules.add('id', id, 'Min name length is 8').isLength({min: 8});
+        const idRule = rules.addRule('id', id)
+
+        idRule.isMongoId().setMessage('Invalid ID');
+        idRule.isLength({min: 8}).setMessage('Min name length is 8');
 
         it(`Then rules.validate() should return {name: 'Invalid ID'}`, () => {
           const errors = rules.validate();
@@ -84,7 +86,7 @@ describe('Feature: Rules Class', () => {
         const rules = new Rules();
         const email = 'hello@world.com';
 
-        rules.add('email', email).isEmail().isEmailAvailable();
+        rules.addRule('email', email).isEmail().isEmailAvailable();
 
         it(`Then rules.validate() should return Error that ask to use validatorPromise`, () => {
           let error;
@@ -115,7 +117,7 @@ describe('Feature: Rules Class', () => {
       describe('And Rules: isRequired(), isEmail() and isEmailAvailable()', () => {
         const rules = new Rules();
 
-        rules.add('email', email, 'Email is invalid').isRequired().isEmail().isEmailAvailable();
+        rules.addRule('email', email).isRequired().isEmail().isEmailAvailable().setMessage('Min name length is 8');
 
         it(`Then rules.validatePromise() should return null`, async () => {
           const errors = await rules.validatePromise();
@@ -143,11 +145,13 @@ describe('Feature: Rules Class', () => {
       const email = '';
 
       describe('And Rules: isRequired(), isEmail() and isEmailAvailable()', () => {
-        const rules = new Rules();
+        const emailRule = new Rule('email', email);
 
-        rules.add('email', email, 'Email is required').isRequired();
-        rules.add('email', email, 'Email is invalid').isRequired();
-        rules.add('email', email, 'Email is not available').isRequired();
+        emailRule.isRequired().setMessage('Email is required');
+        emailRule.isRequired().setMessage('Email is invalid');
+        emailRule.isRequired().setMessage('Email is not available');
+
+        const rules = new Rules(emailRule);
 
         it(`Then rules.validatePromise() should return {email: 'Email is required'}`, async () => {
           const errors = await rules.validatePromise();

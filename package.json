@@ -4,10 +4,10 @@
   "description": "Validator and sanitizer",
   "main": "./dist/index.js",
   "scripts": {
-    "prepublish": "boilerplate build:node",
-    "build": "boilerplate build:node",
-    "watch": "boilerplate watch:node",
-    "test": "boilerplate test"
+    "prepublish": "boilerplate --build=node",
+    "build": "boilerplate --build=node",
+    "watch": "boilerplate --watch=node",
+    "test": "boilerplate --test"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/ozylog/validator#readme",
   "devDependencies": {
-    "@ozylog/boilerplate": "^0.3.5"
+    "@ozylog/boilerplate": "^0.6.2"
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",

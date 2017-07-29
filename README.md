@@ -38,10 +38,19 @@ sanitizer.trim(' test '); // returns 'test'
 
 ### Rules
 ```javascript
-import {Rules} from '@ozylog/validator';
+import {Rules, Rule} from '@ozylog/validator';
 
 const name = '';
-const rules = new Rules();
+const email = 'hello@world.com';
+const nameRule = new Rule('name', name);
+const emailRule = new Rule('email', email);
+
+nameRule.isRequired().setMessage('Name is required');
+nameRule.isLength({min: 8}).setMessage('Min name length is 8');
+
+emailRule.isEmail().setMesssage('Invalid email');
+
+const rules = new Rules(nameRule, emailRule);
 
 rules.add('name', name, 'Name is required').isRequired();
 rules.add('name', name, 'Min name length is 8').isLength({min: 8});
@@ -58,18 +67,19 @@ addValidator({
 
 const email = 'hello@world.com';
 const rules = new Rules();
-rules.add('email', email, 'Email is not available').isEmailAvailable();
+rules.addRule('email', email).isEmailAvailable().setMessage('Email is not available');
 
 await rules.validatePromise(); // returns {email: 'Email is not available'}
 await rules.validatePromise({checkAll: true}); // returns {email: ['Email is not available']}
 ```
 
 ```javascript
-import {Rules} from '@ozylog/validator';
+import {Rules, Rule} from '@ozylog/validator';
 
 const email = 'hello@world.com';
 const rules = new Rules();
-rules.add('email', email).isRequired().isEmail();
+const emailRule = new Rule('email', email).isRequired().isEmail();
+rules.addRules(emailRule);
 const errors = rules.validate(); // returns null
 ```
 

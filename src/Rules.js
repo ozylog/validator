@@ -7,61 +7,57 @@ import Rule from './Rule';
 type ObjNull = Object | null;
 
 export default class Rules {
-  rules: Array<Rule>;
+  list: Array<Rule>;
 
-  constructor() {
-    this.rules = [];
+  constructor(...listOfRule: Array<?Rule>): Rules {
+    this.list = [];
+
+    if (listOfRule.length) {
+      for (const rule: Rule of listOfRule) {
+        if (rule.constructor.name === 'Rule') this.list.push(rule);
+      }
+    }
+
+    return this;
   }
 
-  add(name: string, value: any, message: string): Rule {
-    const rule: Rule = new Rule(name, value, message);
+  addRule(name: string, value: any): Rule {
+    const rule: Rule = new Rule(name, value);
 
-    this.rules.push(rule);
+    this.list.push(rule);
 
     return rule;
   }
 
+  addRules(...listOfRule: Array<?Rule>) {
+    const isValid: boolean = listOfRule.every((rule: any): boolean => rule.contrustor === Rule);
+
+    if (isValid) this.list.concat(listOfRule);
+
+    return;
+  }
+
   validate(config: Object = {}): ObjNull {
-    const {checkAll}: {checkAll: string} = config;
+    const {checkAll}: {checkAll: ?boolean} = config;
     const errors: Object = {};
 
-    for (const rule: Rule of this.rules) {
-      if (errors[rule.name] && !checkAll) continue;
+    for (const rule: Rule of this.list) {
+      const error: ObjNull = rule.validate({checkAll: checkAll || false});
 
-      const error: ObjNull = rule.validate();
-
-      if (error) {
-        if (checkAll) {
-          if (!errors[rule.name]) errors[rule.name] = [];
-
-          errors[rule.name].push(error.message);
-        } else {
-          errors[rule.name] = error.message;
-        }
-      }
+      if (error) Object.assign(errors, error);
     }
 
     return Object.keys(errors).length ? errors : null;
   }
 
   async validatePromise(config: Object = {}): Promise<ObjNull> {
-    const {checkAll}: {checkAll: boolean} = config;
+    const {checkAll}: {checkAll: ?boolean} = config;
     const errors: Object = {};
 
-    for (const rule: Rule of this.rules) {
-      if (errors[rule.name] && !checkAll) continue;
+    for (const rule: Rule of this.list) {
+      const error: ObjNull = await rule.validatePromise({checkAll: checkAll || false});
 
-      const error: ObjNull = await rule.validatePromise();
-
-      if (error) {
-        if (checkAll) {
-          if (!errors[rule.name]) errors[rule.name] = [];
-
-          errors[rule.name].push(error.message);
-        } else {
-          errors[rule.name] = error.message;
-        }
-      }
+      if (error) Object.assign(errors, error);
     }
 
     return Object.keys(errors).length ? errors : null;

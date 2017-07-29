@@ -1,6 +1,6 @@
 'use strict';
 
-import {Rules, addValidator, validator} from './../dist/index.js';
+import {Rules, Rule, addValidator, validator} from './../dist/index.js';
 
 describe('Feature: isRequired(param)', () => {
   const {isRequired} = validator;
@@ -37,7 +37,7 @@ describe('Feature: addValidator(param)', () => {
         const rules = new Rules();
         const user = {name: 'Udin'};
 
-        rules.add('user', user).isObject();
+        rules.addRule('user', user).isObject();
 
         it(`Then rules.validate() should return null`, () => {
           const errors = rules.validate();
@@ -55,13 +55,12 @@ describe('Feature: addValidator(param)', () => {
       });
 
       describe(`And user = '' And rules isObject()`, () => {
-        const rules = new Rules();
-        const user = '';
+        const rule = new Rule('user', '');
 
-        rules.add('user', user).isObject();
+        rule.isObject();
 
         it(`Then rules.validate() should return {user: 'Invalid'}`, () => {
-          const errors = rules.validate();
+          const errors = rule.validate();
 
           errors.should.be.eql({user: 'Invalid'});
         });
